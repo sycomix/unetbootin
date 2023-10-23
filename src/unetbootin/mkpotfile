@@ -7,18 +7,14 @@ def pout(p):
 	c = p.communicate()
 	l = []
 	for x in c:
-		for y in x.split('\n'):
-			l.append(y)
+		l.extend(iter(x.split('\n')))
 	return l
 
 def printl(l):
 	print lstr(l)
 
 def lstr(l):
-	tl = []
-	for x in l:
-		if x != '':
-			tl.append(x)
+	tl = [x for x in l if x != '']
 	return '\n'.join(tl)	
 
 def mkp(c):
@@ -42,36 +38,35 @@ def tail1(c):
 
 def fstrspl(fullst, searchst, splitc):
 	l = fullst.split(splitc)
-	for x in l:
-		if searchst in x:
-			return x
-	return ""
+	return next((x for x in l if searchst in x), "")
 
-qtx11d = os.getcwd()+'/qt4-x11'
-call([qtx11d+'/bin/lupdate', 'unetbootin.pro'])
-call([qtx11d+'/bin/lrelease','unetbootin.pro'])
+qtx11d = f'{os.getcwd()}/qt4-x11'
+call([f'{qtx11d}/bin/lupdate', 'unetbootin.pro'])
+call([f'{qtx11d}/bin/lrelease', 'unetbootin.pro'])
 potgendate = lstr(lcall(['date','+%Y-%m-%d %R%z']))
-potext = ocall(qtx11d+'/bin/lconvert --no-obsolete -i unetbootin.ts -if ts -of po')
-qtversion = fstrspl(tail1(ocall(qtx11d+'/bin/qmake --version')), '.', ' ')
+potext = ocall(
+	f'{qtx11d}/bin/lconvert --no-obsolete -i unetbootin.ts -if ts -of po'
+)
+qtversion = fstrspl(tail1(ocall(f'{qtx11d}/bin/qmake --version')), '.', ' ')
 lineno = 0
 for x in potext:
 	if 'Header' in x:
 		break
 	lineno += 1
-ntext = [ \
-'#, fuzzy', \
-'msgid ""', \
-'msgstr ""', \
-'"Project-Id-Version: PACKAGE VERSION\\n"', \
-'"Report-Msgid-Bugs-To: \\n"', \
-'"POT-Creation-Date: '+potgendate+'\\n"', \
-'"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"', \
-'"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"', \
-'"Language-Team: LANGUAGE <LL@li.org>\\n"', \
-'"MIME-Version: 1.0\\n"', \
-'"Content-Type: text/plain; charset=UTF-8\\n"', \
-'"Content-Transfer-Encoding: 8bit\\n"', \
-'"X-Generator: lconvert '+qtversion+'\\n"', \
+ntext = [
+	'#, fuzzy',
+	'msgid ""',
+	'msgstr ""',
+	'"Project-Id-Version: PACKAGE VERSION\\n"',
+	'"Report-Msgid-Bugs-To: \\n"',
+	f'"POT-Creation-Date: {potgendate}' + '\\n"',
+	'"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"',
+	'"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"',
+	'"Language-Team: LANGUAGE <LL@li.org>\\n"',
+	'"MIME-Version: 1.0\\n"',
+	'"Content-Type: text/plain; charset=UTF-8\\n"',
+	'"Content-Transfer-Encoding: 8bit\\n"',
+	f'"X-Generator: lconvert {qtversion}' + '\\n"',
 ]
 i = 0
 for x in potext:
